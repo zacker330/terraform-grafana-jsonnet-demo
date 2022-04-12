@@ -1,0 +1,88 @@
+{
+   "provider": {
+      "grafana": {
+         "auth": "eyJrIjoiOU1neGhsZDM4aFVEU1dVQjBWN0IxZXM5eW5BdEsxNlAiLCJuIjoiYWRtaW4iLCJpZCI6MX0=",
+         "url": "http://127.0.0.1:3000"
+      },
+      "postgresql": {
+         "connect_timeout": 15,
+         "database": "postgres",
+         "host": "127.0.0.1",
+         "password": "postgres",
+         "port": 5432,
+         "sslmode": "disable",
+         "username": "postgres"
+      }
+   },
+   "resource": {
+      "grafana_data_source": {
+         "prometheus": {
+            "json_data": {
+               "http_method": "POST",
+               "sigv4_auth": true,
+               "sigv4_auth_type": "default",
+               "sigv4_region": "eu-west-1"
+            },
+            "name": "amp",
+            "type": "prometheus",
+            "url": "https://aps-workspaces.eu-west-1.amazonaws.com/workspaces/ws-1234567890/"
+         }
+      },
+      "postgresql_database": {
+         "my_db": {
+            "allow_connections": true,
+            "name": "my_db"
+         }
+      },
+      "postgresql_role": {
+         "app_db": {
+            "name": "app_db"
+         },
+         "app_releng": {
+            "name": "app_releng"
+         },
+         "app_www": {
+            "name": "app_www"
+         }
+      },
+      "postgresql_schema": {
+         "my_schema": {
+            "name": "my_schema",
+            "owner": "postgres",
+            "policy": [
+               {
+                  "role": "${postgresql_role.app_www.name}",
+                  "usage": true
+               },
+               {
+                  "create": true,
+                  "role": "${postgresql_role.app_releng.name}",
+                  "usage": true
+               },
+               {
+                  "create_with_grant": true,
+                  "role": "${postgresql_role.app_db.name}",
+                  "usage_with_grant": true
+               }
+            ]
+         }
+      }
+   },
+   "terraform": {
+      "backend": {
+         "pg": {
+            "conn_str": "postgres://postgres:postgres@127.0.0.1:5432/grafana_terraform_backend?sslmode=disable"
+         }
+      },
+      "required_providers": {
+         "grafana": {
+            "source": "grafana/grafana",
+            "version": "1.21.1"
+         },
+         "postgresql": {
+            "source": "cyrilgdn/postgresql",
+            "version": "1.15.0"
+         }
+      }
+   }
+}
